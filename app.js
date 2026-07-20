@@ -11,8 +11,8 @@ class MusicTrainingApp {
         this.scaleNotes = [];
         this.isRecording = false;
         
-        // Google Apps Script Webhook URL (se configurará después)
-   this.webhookURL = 'https://script.google.com/macros/s/AKfycbz4dyyFtNkyHYmkSokJDSx5pmucX2sGqaiRTZxEN4BUzOebSJUDYFVK66DxypNq81Ap/exec';
+        // Google Apps Script Webhook URL CONFIGURADA
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycbz4dyyFtNkyHYmkSokJDSx5pmucX2sGqaiRTZxEN4BUzOebSJUDYFVK66DxypNq81Ap/exec';
         
         this.init();
     }
@@ -27,28 +27,16 @@ class MusicTrainingApp {
         if (!this.synth) {
             await Tone.start();
             this.synth = new Tone.PolySynth(Tone.Synth, {
-                oscillator: {
-                    type: "triangle"
-                },
-                envelope: {
-                    attack: 0.02,
-                    decay: 0.1,
-                    sustain: 0.3,
-                    release: 1
-                }
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1 }
             }).toDestination();
             
-            // Add some reverb for nicer sound
-            const reverb = new Tone.Reverb({
-                decay: 2,
-                wet: 0.3
-            }).toDestination();
+            const reverb = new Tone.Reverb({ decay: 2, wet: 0.3 }).toDestination();
             this.synth.connect(reverb);
         }
     }
     
     createKeyboard() {
-        // One octave: C4 to B4 (12 keys: 7 white, 5 black)
         const notes = [
             { note: 'C4', type: 'white', position: 0 },
             { note: 'C#4', type: 'black', position: 0 },
@@ -70,7 +58,6 @@ class MusicTrainingApp {
             key.dataset.note = noteData.note;
             
             if (noteData.type === 'black') {
-                // Position black keys between white keys
                 const offset = 35 + (noteData.position * 50) - 15;
                 key.style.left = `${offset}px`;
             }
@@ -94,7 +81,6 @@ class MusicTrainingApp {
     }
     
     generateNewMelody() {
-        // Choose random scale
         const scales = [
             { name: 'Pentatónica Mayor de Do', notes: ['C4', 'D4', 'E4', 'G4', 'A4'] },
             { name: 'Pentatónica Menor de La', notes: ['A4', 'C4', 'D4', 'E4', 'G4'] },
@@ -106,7 +92,6 @@ class MusicTrainingApp {
         this.scaleType = selectedScale.name;
         this.scaleNotes = selectedScale.notes;
         
-        // Generate melody (4-8 notes)
         const melodyLength = Math.floor(Math.random() * 4) + 4;
         this.currentMelody = [];
         
@@ -115,7 +100,6 @@ class MusicTrainingApp {
             this.currentMelody.push(randomNote);
         }
         
-        // Update UI
         document.getElementById('scaleType').textContent = this.scaleType;
         document.getElementById('noteCount').textContent = this.currentMelody.length;
         document.getElementById('feedback').textContent = 'Presiona "Escuchar Melodía" para comenzar';
@@ -127,12 +111,10 @@ class MusicTrainingApp {
     
     async playMelody() {
         await this.initAudio();
-        
         const feedback = document.getElementById('feedback');
         feedback.textContent = '🎵 Escuchando melodía...';
         feedback.style.color = '#00d9a5';
         
-        // Play each note with timing
         const now = Tone.now();
         this.currentMelody.forEach((note, index) => {
             this.synth.triggerAttackRelease(note, '8n', now + (index * 0.5));
@@ -146,23 +128,16 @@ class MusicTrainingApp {
     
     handleKeyPress(note, keyElement) {
         this.initAudio();
-        
-        // Play the note
         this.synth.triggerAttackRelease(note, '8n');
-        
-        // Visual feedback
         keyElement.classList.add('active');
         setTimeout(() => keyElement.classList.remove('active'), 200);
-        
-        // Add to user melody
         this.userMelody.push(note);
         this.updateFeedback();
     }
     
     updateFeedback() {
         const feedback = document.getElementById('feedback');
-        const notesPlayed = this.userMelody.join(' - ');
-        feedback.textContent = `Notas tocadas: ${notesPlayed}`;
+        feedback.textContent = `Notas tocadas: ${this.userMelody.join(' - ')}`;
     }
     
     clearUserMelody() {
@@ -183,7 +158,6 @@ class MusicTrainingApp {
             document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas en el teclado';
             return;
         }
-        
         const score = this.calculateScore();
         this.showResults(score);
         this.highlightKeys();
@@ -192,24 +166,12 @@ class MusicTrainingApp {
     calculateScore() {
         let correctNotes = 0;
         const minLength = Math.min(this.currentMelody.length, this.userMelody.length);
-        
-        // Compare note by note
         for (let i = 0; i < minLength; i++) {
-            if (this.currentMelody[i] === this.userMelody[i]) {
-                correctNotes++;
-            }
+            if (this.currentMelody[i] === this.userMelody[i]) correctNotes++;
         }
-        
-        // Calculate percentage
         const maxNotes = Math.max(this.currentMelody.length, this.userMelody.length);
         const percentage = Math.round((correctNotes / maxNotes) * 100);
-        
-        return {
-            percentage: percentage,
-            correctNotes: correctNotes,
-            totalNotes: this.currentMelody.length,
-            userNotes: this.userMelody.length
-        };
+        return { percentage, correctNotes, totalNotes: this.currentMelody.length, userNotes: this.userMelody.length };
     }
     
     showResults(score) {
@@ -220,39 +182,22 @@ class MusicTrainingApp {
         scoreDisplay.style.display = 'block';
         scoreValue.textContent = score.percentage;
         
-        // Custom feedback based on score
-        if (score.percentage === 100) {
-            feedbackText.textContent = ' ¡Perfecto! ¡Excelente oído musical!';
-        } else if (score.percentage >= 80) {
-            feedbackText.textContent = '👏 ¡Muy bien! Casi perfecto';
-        } else if (score.percentage >= 60) {
-            feedbackText.textContent = '👍 Bien, sigue practicando';
-        } else if (score.percentage >= 40) {
-            feedbackText.textContent = '💪 Vas por buen camino, continúa';
-        } else {
-            feedbackText.textContent = '📚 Sigue practicando, ¡tú puedes!';
-        }
+        if (score.percentage === 100) feedbackText.textContent = '🌟 ¡Perfecto! ¡Excelente oído musical!';
+        else if (score.percentage >= 80) feedbackText.textContent = '👏 ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 60) feedbackText.textContent = '👍 Bien, sigue practicando';
+        else if (score.percentage >= 40) feedbackText.textContent = '💪 Vas por buen camino, continúa';
+        else feedbackText.textContent = '📚 Sigue practicando, ¡tú puedes!';
         
-        // Additional info
-        const feedback = document.getElementById('feedback');
-        feedback.innerHTML = `
-            Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>
-            Notas tocadas: ${score.userNotes}
-        `;
+        document.getElementById('feedback').innerHTML = `Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>Notas tocadas: ${score.userNotes}`;
     }
     
     highlightKeys() {
         this.clearKeyboardHighlights();
-        
-        // Highlight correct keys in green, incorrect in red
         this.userMelody.forEach((note, index) => {
             const keyElement = document.querySelector(`[data-note="${note}"]`);
             if (keyElement) {
-                if (this.currentMelody[index] === note) {
-                    keyElement.classList.add('correct');
-                } else {
-                    keyElement.classList.add('incorrect');
-                }
+                if (this.currentMelody[index] === note) keyElement.classList.add('correct');
+                else keyElement.classList.add('incorrect');
             }
         });
     }
@@ -263,12 +208,11 @@ class MusicTrainingApp {
         const group = document.getElementById('studentGroup').value;
         
         if (!this.webhookURL) {
-            alert('⚠️ El webhook de Google Sheets no está configurado. Contacta al profesor.');
+            alert('⚠️ El webhook no está configurado.');
             return;
         }
         
         const score = this.calculateScore();
-        
         const data = {
             timestamp: new Date().toISOString(),
             email: email || 'No especificado',
@@ -284,15 +228,12 @@ class MusicTrainingApp {
         };
         
         try {
-            const response = await fetch(this.webhookURL, {
+            await fetch(this.webhookURL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
             alert('✅ Resultado guardado correctamente');
         } catch (error) {
             console.error('Error:', error);
@@ -301,7 +242,6 @@ class MusicTrainingApp {
     }
 }
 
-// Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new MusicTrainingApp();
 });
