@@ -10,7 +10,7 @@
     <link rel="manifest" href="manifest.json">
     
     <!-- Enlace a la hoja de estilos (CRUCIAL para que se vea el teclado) -->
-    <link rel="stylesheet" href="style.css">
+   <link rel="stylesheet" href="style.css?v=3">
     
     <!-- Carga de Tone.js (DEBE ir ANTES que app.js) -->
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
@@ -60,8 +60,7 @@
     </div>
 
     <!-- Carga de tu aplicación (DEBE ir al final, después de Tone.js) -->
-    <script src="app.js"></script>
-    
+<script src="app.js?v=3"></script>    
     <!-- Registro del Service Worker (versión segura) -->
     <script>
         if ('serviceWorker' in navigator) {
