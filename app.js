@@ -57,9 +57,6 @@ class MusicTrainingApp {
             key.className = `key ${noteData.type}`;
             key.dataset.note = noteData.note;
             
-            // NOTA: Eliminamos el cálculo de 'key.style.left' aquí.
-            // El archivo style.css ahora se encarga de posicionar las teclas negras con precisión.
-            
             key.addEventListener('mousedown', () => this.handleKeyPress(noteData.note, key));
             key.addEventListener('touchstart', (e) => {
                 e.preventDefault();
@@ -98,7 +95,7 @@ class MusicTrainingApp {
             this.currentMelody.push(randomNote);
         }
         
-        //document.getElementById('scaleType').textContent = this.scaleType;
+        document.getElementById('scaleType').textContent = ' Escucha y adivina';
         document.getElementById('noteCount').textContent = this.currentMelody.length;
         document.getElementById('feedback').textContent = 'Presiona "Escuchar Melodía" para comenzar';
         document.getElementById('scoreDisplay').style.display = 'none';
@@ -135,7 +132,31 @@ class MusicTrainingApp {
     
     updateFeedback() {
         const feedback = document.getElementById('feedback');
-        feedback.textContent = `Notas tocadas: ${this.userMelody.join(' - ')}`;
+        const notesPlayed = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
+        feedback.textContent = `Notas tocadas: ${notesPlayed}`;
+    }
+    
+    // Función para convertir C4, D4, etc. a Do4, Re4, etc.
+    convertNoteToSpanish(noteCode) {
+        const noteMap = {
+            'C': 'Do',
+            'D': 'Re',
+            'E': 'Mi',
+            'F': 'Fa',
+            'G': 'Sol',
+            'A': 'La',
+            'B': 'Si'
+        };
+        
+        // Extraer la letra de la nota y el número de octava
+        const noteLetter = noteCode.charAt(0);
+        const accidental = noteCode.charAt(1) === '#' ? '#' : '';
+        const octave = noteCode.slice(-1);
+        
+        // Convertir a español
+        const spanishName = noteMap[noteLetter] || noteLetter;
+        
+        return spanishName + accidental + octave;
     }
     
     clearUserMelody() {
@@ -181,12 +202,20 @@ class MusicTrainingApp {
         scoreValue.textContent = score.percentage;
         
         if (score.percentage === 100) feedbackText.textContent = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) feedbackText.textContent = '👏 ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 80) feedbackText.textContent = ' ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) feedbackText.textContent = '👍 Bien, sigue practicando';
         else if (score.percentage >= 40) feedbackText.textContent = '💪 Vas por buen camino, continúa';
         else feedbackText.textContent = '📚 Sigue practicando, ¡tú puedes!';
         
-        document.getElementById('feedback').innerHTML = `Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>Notas tocadas: ${score.userNotes}`;
+        // Mostrar notas en español
+        const userNotesSpanish = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
+        const correctNotesSpanish = this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
+        
+        document.getElementById('feedback').innerHTML = `
+            Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>
+            <small>Tocaste: ${userNotesSpanish}</small><br>
+            <small>Era: ${correctNotesSpanish}</small>
+        `;
     }
     
     highlightKeys() {
@@ -205,6 +234,11 @@ class MusicTrainingApp {
         const name = document.getElementById('studentName').value;
         const group = document.getElementById('studentGroup').value;
         
+        if (!email || !name || !group) {
+            alert('⚠️ Por favor, completa todos los campos (correo, nombre y grupo) antes de guardar.');
+            return;
+        }
+        
         if (!this.webhookURL) {
             alert('⚠️ El webhook no está configurado.');
             return;
@@ -221,8 +255,8 @@ class MusicTrainingApp {
             score: score.percentage,
             correctNotes: score.correctNotes,
             totalNotes: score.totalNotes,
-            userMelody: this.userMelody.join('-'),
-            correctMelody: this.currentMelody.join('-')
+            userMelody: this.userMelody.map(note => this.convertNoteToSpanish(note)).join('-'),
+            correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join('-')
         };
         
         try {
