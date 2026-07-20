@@ -98,7 +98,7 @@ class MusicTrainingApp {
             this.currentMelody.push(randomNote);
         }
         
-        document.getElementById('scaleType').textContent = this.scaleType;
+        //document.getElementById('scaleType').textContent = this.scaleType;
         document.getElementById('noteCount').textContent = this.currentMelody.length;
         document.getElementById('feedback').textContent = 'Presiona "Escuchar Melodía" para comenzar';
         document.getElementById('scoreDisplay').style.display = 'none';
