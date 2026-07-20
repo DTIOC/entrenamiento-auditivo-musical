@@ -1,0 +1,236 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #e94560;
+}
+
+.game-area {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn-primary {
+    background: #e94560;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #ff6b6b;
+}
+
+.btn-secondary {
+    background: #0f3460;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #1a4a7a;
+}
+
+.btn-success {
+    background: #00d9a5;
+    color: #1a1a2e;
+}
+
+.btn-success:hover {
+    background: #00f5b8;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: #1a1a2e;
+}
+
+.btn-warning:hover {
+    background: #ffdb4d;
+}
+
+.btn-info {
+    background: #17a2b8;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-info:hover {
+    background: #1fc3db;
+}
+
+.info-panel {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.feedback {
+    min-height: 60px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.score-display {
+    background: linear-gradient(135deg, #00d9a5 0%, #00f5b8 100%);
+    color: #1a1a2e;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.score-display h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+/* Keyboard Styles */
+.keyboard {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 250px;
+    margin: 30px 0;
+    user-select: none;
+}
+
+.key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.key.white {
+    width: 50px;
+    height: 250px;
+    background: linear-gradient(to bottom, #fff 0%, #e8e8e8 100%);
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    z-index: 1;
+}
+
+.key.white:active, .key.white.active {
+    background: linear-gradient(to bottom, #e8e8e8 0%, #d0d0d0 100%);
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.key.black {
+    width: 30px;
+    height: 150px;
+    background: linear-gradient(to bottom, #333 0%, #000 100%);
+    position: absolute;
+    z-index: 2;
+    border-radius: 0 0 3px 3px;
+    top: 0;
+}
+
+.key.black:active, .key.black.active {
+    background: linear-gradient(to bottom, #222 0%, #000 100%);
+    transform: translateY(2px);
+}
+
+.key.correct {
+    background: #00ff88 !important;
+}
+
+.key.incorrect {
+    background: #ff4444 !important;
+}
+
+/* Student Info */
+.student-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.student-info h3 {
+    margin-bottom: 15px;
+    color: #e94560;
+}
+
+.student-info input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .key.white {
+        width: 35px;
+        height: 200px;
+    }
+    
+    .key.black {
+        width: 22px;
+        height: 120px;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .controls {
+        grid-template-columns: 1fr;
+    }
+}
