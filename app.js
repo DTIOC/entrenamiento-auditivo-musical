@@ -37,7 +37,6 @@ class MusicTrainingApp {
     }
     
     createKeyboard() {
-        // One octave: C4 to B4 (12 keys: 7 white, 5 black)
         const notes = [
             { note: 'C4', type: 'white', position: 0 },
             { note: 'C#4', type: 'black', position: 0 },
@@ -58,11 +57,8 @@ class MusicTrainingApp {
             key.className = `key ${noteData.type}`;
             key.dataset.note = noteData.note;
             
-            if (noteData.type === 'black') {
-                // POSICIÓN CORREGIDA: Tecla negra centrada entre dos teclas blancas
-                const offset = (noteData.position * 50) + 35;
-                key.style.left = `${offset}px`;
-            }
+            // NOTA: Eliminamos el cálculo de 'key.style.left' aquí.
+            // El archivo style.css ahora se encarga de posicionar las teclas negras con precisión.
             
             key.addEventListener('mousedown', () => this.handleKeyPress(noteData.note, key));
             key.addEventListener('touchstart', (e) => {
@@ -188,7 +184,7 @@ class MusicTrainingApp {
         else if (score.percentage >= 80) feedbackText.textContent = '👏 ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) feedbackText.textContent = '👍 Bien, sigue practicando';
         else if (score.percentage >= 40) feedbackText.textContent = '💪 Vas por buen camino, continúa';
-        else feedbackText.textContent = ' Sigue practicando, ¡tú puedes!';
+        else feedbackText.textContent = '📚 Sigue practicando, ¡tú puedes!';
         
         document.getElementById('feedback').innerHTML = `Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>Notas tocadas: ${score.userNotes}`;
     }
