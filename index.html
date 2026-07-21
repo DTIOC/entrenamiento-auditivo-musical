@@ -6,19 +6,14 @@
     <meta name="theme-color" content="#1a1a2e">
     <title>Entrenamiento Auditivo - Escalas Pentatónicas y Blues</title>
     
-    <!-- Enlace al manifiesto para PWA -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Enlace a la hoja de estilos -->
-    <link rel="stylesheet" href="style.css?v=8">
-    
-    <!-- Carga de Tone.js (DEBE ir ANTES que app.js) -->
+    <link rel="stylesheet" href="style.css?v=9">
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎵 Entrenamiento Auditivo</h1>
+            <h1> Entrenamiento Auditivo</h1>
             <p>Escucha la melodía y repítela en el teclado</p>
         </header>
 
@@ -57,14 +52,10 @@
         </div>
 
         <div class="keyboard" id="keyboard"></div>
-
-        <button id="btnSaveResult" class="btn btn-info">💾 Guardar Resultado en Sheets</button>
     </div>
 
-    <!-- Carga de la aplicación -->
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
     
-    <!-- Registro del Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
