@@ -9,8 +9,8 @@
     <!-- Enlace al manifiesto para PWA -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Enlace a la hoja de estilos (CRUCIAL para que se vea el teclado) -->
-   <link rel="stylesheet" href="style.css?v=6">
+    <!-- Enlace a la hoja de estilos -->
+    <link rel="stylesheet" href="style.css?v=8">
     
     <!-- Carga de Tone.js (DEBE ir ANTES que app.js) -->
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
@@ -22,6 +22,15 @@
             <p>Escucha la melodía y repítela en el teclado</p>
         </header>
 
+        <!-- FORMULARIO DE REGISTRO AL INICIO -->
+        <div class="student-info">
+            <h3>📋 Registro de datos (obligatorio)</h3>
+            <p style="margin-bottom: 10px; opacity: 0.8;">Llena estos campos antes de comenzar para que tus resultados queden registrados.</p>
+            <input type="email" id="studentEmail" placeholder="Correo institucional" required>
+            <input type="text" id="studentName" placeholder="Nombre completo" required>
+            <input type="text" id="studentGroup" placeholder="Grupo" required>
+        </div>
+
         <div class="game-area">
             <div class="controls">
                 <button id="btnPlay" class="btn btn-primary">▶️ Escuchar Melodía</button>
@@ -30,7 +39,7 @@
                 <button id="btnClear" class="btn btn-warning">🔄 Limpiar</button>
             </div>
 
-                        <div class="info-panel">
+            <div class="info-panel">
                 <div class="scale-info">
                     <strong>Escala:</strong> <span id="scaleType">🎵 Escucha y adivina</span>
                 </div>
@@ -38,6 +47,7 @@
                     <strong>Notas:</strong> <span id="noteCount">0</span> notas
                 </div>
             </div>
+
             <div class="feedback" id="feedback"></div>
 
             <div class="score-display" id="scoreDisplay" style="display: none;">
@@ -48,19 +58,13 @@
 
         <div class="keyboard" id="keyboard"></div>
 
-        <div class="student-info">
-    <h3>Registro de resultados</h3>
-    <input type="email" id="studentEmail" placeholder="Correo institucional" required>
-    <input type="text" id="studentName" placeholder="Nombre" required>
-    <input type="text" id="studentGroup" placeholder="Grupo" required>
-</div>
-
         <button id="btnSaveResult" class="btn btn-info">💾 Guardar Resultado en Sheets</button>
     </div>
 
-    <!-- Carga de tu aplicación (DEBE ir al final, después de Tone.js) -->
-<script src="app.js?v=6"></script>    
-    <!-- Registro del Service Worker (versión segura) -->
+    <!-- Carga de la aplicación -->
+    <script src="app.js?v=8"></script>
+    
+    <!-- Registro del Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
