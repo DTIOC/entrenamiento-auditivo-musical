@@ -72,7 +72,7 @@ class MusicTrainingApp {
         document.getElementById('btnGenerate').addEventListener('click', () => this.generateNewMelody());
         document.getElementById('btnCheck').addEventListener('click', () => this.checkMelody());
         document.getElementById('btnClear').addEventListener('click', () => this.clearUserMelody());
-        document.getElementById('btnSaveResult').addEventListener('click', () => this.saveToGoogleSheets());
+        // ❌ ELIMINADO: El botón de guardar ya no existe, el guardado es automático
     }
     
     generateNewMelody() {
@@ -95,7 +95,7 @@ class MusicTrainingApp {
             this.currentMelody.push(randomNote);
         }
         
-        document.getElementById('scaleType').textContent = ' Escucha y adivina';
+        document.getElementById('scaleType').textContent = '🎵 Escucha y adivina';
         document.getElementById('noteCount').textContent = this.currentMelody.length;
         document.getElementById('feedback').textContent = 'Presiona "Escuchar Melodía" para comenzar';
         document.getElementById('scoreDisplay').style.display = 'none';
@@ -107,7 +107,7 @@ class MusicTrainingApp {
     async playMelody() {
         await this.initAudio();
         const feedback = document.getElementById('feedback');
-        feedback.textContent = '🎵 Escuchando melodía...';
+        feedback.textContent = ' Escuchando melodía...';
         feedback.style.color = '#00d9a5';
         
         const now = Tone.now();
@@ -136,7 +136,6 @@ class MusicTrainingApp {
         feedback.textContent = `Notas tocadas: ${notesPlayed}`;
     }
     
-    // Función para convertir C4, D4, etc. a Do4, Re4, etc.
     convertNoteToSpanish(noteCode) {
         const noteMap = {
             'C': 'Do',
@@ -148,12 +147,10 @@ class MusicTrainingApp {
             'B': 'Si'
         };
         
-        // Extraer la letra de la nota y el número de octava
         const noteLetter = noteCode.charAt(0);
         const accidental = noteCode.charAt(1) === '#' ? '#' : '';
         const octave = noteCode.slice(-1);
         
-        // Convertir a español
         const spanishName = noteMap[noteLetter] || noteLetter;
         
         return spanishName + accidental + octave;
@@ -173,13 +170,28 @@ class MusicTrainingApp {
     }
     
     checkMelody() {
+        // Validar que los datos estén llenos antes de verificar
+        const email = document.getElementById('studentEmail').value.trim();
+        const name = document.getElementById('studentName').value.trim();
+        const group = document.getElementById('studentGroup').value.trim();
+        
+        if (!email || !name || !group) {
+            alert('⚠️ Por favor, completa todos los campos de registro (correo, nombre y grupo) antes de verificar.');
+            document.getElementById('studentEmail').focus();
+            return;
+        }
+        
         if (this.userMelody.length === 0) {
             document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas en el teclado';
             return;
         }
+        
         const score = this.calculateScore();
         this.showResults(score);
         this.highlightKeys();
+        
+        // ✅ GUARDADO AUTOMÁTICO al verificar
+        this.saveToGoogleSheets();
     }
     
     calculateScore() {
@@ -202,12 +214,11 @@ class MusicTrainingApp {
         scoreValue.textContent = score.percentage;
         
         if (score.percentage === 100) feedbackText.textContent = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) feedbackText.textContent = ' ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 80) feedbackText.textContent = '👏 ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) feedbackText.textContent = '👍 Bien, sigue practicando';
         else if (score.percentage >= 40) feedbackText.textContent = '💪 Vas por buen camino, continúa';
-        else feedbackText.textContent = '📚 Sigue practicando, ¡tú puedes!';
+        else feedbackText.textContent = ' Sigue practicando, ¡tú puedes!';
         
-        // Mostrar notas en español
         const userNotesSpanish = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
         const correctNotesSpanish = this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
         
@@ -230,17 +241,12 @@ class MusicTrainingApp {
     }
     
     async saveToGoogleSheets() {
-        const email = document.getElementById('studentEmail').value;
-        const name = document.getElementById('studentName').value;
-        const group = document.getElementById('studentGroup').value;
-        
-        if (!email || !name || !group) {
-            alert('⚠️ Por favor, completa todos los campos (correo, nombre y grupo) antes de guardar.');
-            return;
-        }
+        const email = document.getElementById('studentEmail').value.trim();
+        const name = document.getElementById('studentName').value.trim();
+        const group = document.getElementById('studentGroup').value.trim();
         
         if (!this.webhookURL) {
-            alert('⚠️ El webhook no está configurado.');
+            console.error('Webhook no configurado');
             return;
         }
         
@@ -266,10 +272,9 @@ class MusicTrainingApp {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            alert('✅ Resultado guardado correctamente');
+            console.log('✅ Resultado guardado automáticamente');
         } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error al guardar. Intenta de nuevo.');
+            console.error('Error al guardar:', error);
         }
     }
 }
