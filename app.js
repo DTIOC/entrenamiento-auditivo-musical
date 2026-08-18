@@ -7,7 +7,7 @@ class MusicTrainingApp {
         this.scaleType = 'Do Mayor';
         this.scaleNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
         
-        this.webhookURL = 'https://script.google.com/a/macros/iems.edu.mx/s/AKfycbyXyB4vJla_ljcySejqcL4lA6nooNOFkEcSMW3Nv_zXQdoBa1TCCp1XRt9qd9UFr4Cu/exec';
+        this.webhookURL = 'https://script.google.com/a/macros/iems.edu.mx/s/AKfycbwHO7SAz_Y_W2VjrI3wbZo99j-qWXZF217nWZfeIdolddPE2l5D5ZqEDtaufz_2cx-O/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
