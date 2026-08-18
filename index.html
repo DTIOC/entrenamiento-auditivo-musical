@@ -4,23 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1a1a2e">
-    <title>Entrenamiento Auditivo - Escalas Pentatónicas y Blues</title>
+    <title>Entrenamiento Auditivo - Niveles Progresivos</title>
     
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1> Entrenamiento Auditivo</h1>
-            <p>Escucha la melodía y repítela en el teclado</p>
+            <h1>🎹 Entrenamiento Auditivo</h1>
+            <p>Escucha y repite las notas en el teclado</p>
         </header>
 
-        <!-- FORMULARIO DE REGISTRO AL INICIO -->
         <div class="student-info">
             <h3>📋 Registro de datos (obligatorio)</h3>
-            <p style="margin-bottom: 10px; opacity: 0.8;">Llena estos campos antes de comenzar para que tus resultados queden registrados.</p>
+            <p style="margin-bottom: 10px; opacity: 0.8;">Llena estos campos antes de comenzar.</p>
             <input type="email" id="studentEmail" placeholder="Correo institucional" required>
             <input type="text" id="studentName" placeholder="Nombre completo" required>
             <input type="text" id="studentGroup" placeholder="Grupo" required>
@@ -28,18 +27,22 @@
 
         <div class="game-area">
             <div class="controls">
-                <button id="btnPlay" class="btn btn-primary">▶️ Escuchar Melodía</button>
-                <button id="btnGenerate" class="btn btn-secondary">🎲 Nueva Melodía</button>
+                <button id="btnMode" class="btn btn-info">🎵 Modo Familiarización</button>
+                <button id="btnPlay" class="btn btn-primary">▶️ Escuchar</button>
+                <button id="btnGenerate" class="btn btn-secondary">🎲 Nuevo Ejercicio</button>
                 <button id="btnCheck" class="btn btn-success">✓ Verificar</button>
                 <button id="btnClear" class="btn btn-warning">🔄 Limpiar</button>
             </div>
 
             <div class="info-panel">
                 <div class="scale-info">
-                    <strong>Escala:</strong> <span id="scaleType">🎵 Escucha y adivina</span>
+                    <strong>Nivel:</strong> <span id="currentLevel" class="level-badge">1</span>
                 </div>
                 <div class="notes-info">
-                    <strong>Notas:</strong> <span id="noteCount">0</span> notas
+                    <strong>Notas:</strong> <span id="noteCount">0</span>
+                </div>
+                <div class="progress-info">
+                    <strong>Progreso:</strong> <span id="levelProgress">0/2</span> para subir
                 </div>
             </div>
 
@@ -54,13 +57,13 @@
         <div class="keyboard" id="keyboard"></div>
     </div>
 
-    <script src="app.js?v=9"></script>
+    <script src="app.js?v=10"></script>
     
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => {
-                    console.log('Service Worker no registrado (no es crítico):', err);
+                    console.log('Service Worker no registrado:', err);
                 });
             });
         }
