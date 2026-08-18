@@ -7,7 +7,7 @@
     <title>Entrenamiento Auditivo - Niveles Progresivos</title>
     
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
 </head>
 <body>
@@ -18,16 +18,24 @@
         </header>
 
         <div class="student-info">
-            <h3>📋 Registro de datos (obligatorio)</h3>
+            <h3> Registro de datos (obligatorio)</h3>
             <p style="margin-bottom: 10px; opacity: 0.8;">Llena estos campos antes de comenzar.</p>
             <input type="email" id="studentEmail" placeholder="Correo institucional" required>
             <input type="text" id="studentName" placeholder="Nombre completo" required>
             <input type="text" id="studentGroup" placeholder="Grupo" required>
+            
+            <!-- CAMPO: Profesor -->
+            <select id="studentTeacher" required style="width: 100%; padding: 12px; margin-bottom: 10px; border: none; border-radius: 5px; background: rgba(255, 255, 255, 0.9); font-size: 1rem; color: #333;">
+                <option value="">Selecciona tu profesor...</option>
+                <option value="Oscar">Prof. Óscar</option>
+                <option value="Rene">Prof. René Báez</option>
+                <option value="Yazmin">Profra. Yazmín Guzmán</option>
+            </select>
         </div>
 
         <div class="game-area">
             <div class="controls">
-                <button id="btnMode" class="btn btn-info">🎵 Modo Familiarización</button>
+                <button id="btnMode" class="btn btn-info"> Modo Familiarización</button>
                 <button id="btnPlay" class="btn btn-primary">▶️ Escuchar</button>
                 <button id="btnGenerate" class="btn btn-secondary">🎲 Nuevo Ejercicio</button>
                 <button id="btnCheck" class="btn btn-success">✓ Verificar</button>
@@ -57,7 +65,7 @@
         <div class="keyboard" id="keyboard"></div>
     </div>
 
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
     
     <script>
         if ('serviceWorker' in navigator) {
