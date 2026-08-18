@@ -1,18 +1,18 @@
-// Music Theory App - Pentatonic & Blues Scales
-// Using Tone.js for audio synthesis
-
 class MusicTrainingApp {
     constructor() {
         this.synth = null;
         this.keyboard = document.getElementById('keyboard');
         this.currentMelody = [];
         this.userMelody = [];
-        this.scaleType = '';
-        this.scaleNotes = [];
-        this.isRecording = false;
+        this.scaleType = 'Do Mayor';
+        this.scaleNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']; // Escala base para todos los niveles
         
-        // Google Apps Script Webhook URL CONFIGURADA
         this.webhookURL = 'https://script.google.com/macros/s/AKfycbz4dyyFtNkyHYmkSokJDSx5pmucX2sGqaiRTZxEN4BUzOebSJUDYFVK66DxypNq81Ap/exec';
+        
+        // Variables de progresión
+        this.currentLevel = 1; // 1 a 4
+        this.successStreak = 0; // Necesita 2 para subir
+        this.isFamiliarizing = true; // Empieza en modo práctica
         
         this.init();
     }
@@ -20,6 +20,7 @@ class MusicTrainingApp {
     init() {
         this.createKeyboard();
         this.setupEventListeners();
+        this.updateUI();
         this.generateNewMelody();
     }
     
@@ -30,7 +31,6 @@ class MusicTrainingApp {
                 oscillator: { type: "triangle" },
                 envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1 }
             }).toDestination();
-            
             const reverb = new Tone.Reverb({ decay: 2, wet: 0.3 }).toDestination();
             this.synth.connect(reverb);
         }
@@ -62,63 +62,99 @@ class MusicTrainingApp {
                 e.preventDefault();
                 this.handleKeyPress(noteData.note, key);
             });
-            
             this.keyboard.appendChild(key);
         });
     }
     
     setupEventListeners() {
+        document.getElementById('btnMode').addEventListener('click', () => this.toggleMode());
         document.getElementById('btnPlay').addEventListener('click', () => this.playMelody());
         document.getElementById('btnGenerate').addEventListener('click', () => this.generateNewMelody());
         document.getElementById('btnCheck').addEventListener('click', () => this.checkMelody());
         document.getElementById('btnClear').addEventListener('click', () => this.clearUserMelody());
-        // ❌ ELIMINADO: El botón de guardar ya no existe, el guardado es automático
+    }
+
+    toggleMode() {
+        this.isFamiliarizing = !this.isFamiliarizing;
+        const btn = document.getElementById('btnMode');
+        if (this.isFamiliarizing) {
+            btn.textContent = '🎵 Modo Familiarización';
+            btn.classList.add('active-mode');
+            document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
+        } else {
+            btn.textContent = '📝 Iniciar Evaluación';
+            btn.classList.remove('active-mode');
+            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+        }
+        this.clearUserMelody();
     }
     
     generateNewMelody() {
-        const scales = [
-            { name: 'Pentatónica Mayor de Do', notes: ['C4', 'D4', 'E4', 'G4', 'A4'] },
-            { name: 'Pentatónica Menor de La', notes: ['A4', 'C4', 'D4', 'E4', 'G4'] },
-            { name: 'Blues de Do', notes: ['C4', 'D#4', 'F4', 'G4', 'G#4', 'A#4'] },
-            { name: 'Blues de La', notes: ['A4', 'C4', 'D4', 'D#4', 'E4', 'G4'] }
-        ];
+        this.userMelody = [];
+        this.clearKeyboardHighlights();
+        document.getElementById('scoreDisplay').style.display = 'none';
         
-        const selectedScale = scales[Math.floor(Math.random() * scales.length)];
-        this.scaleType = selectedScale.name;
-        this.scaleNotes = selectedScale.notes;
-        
-        const melodyLength = Math.floor(Math.random() * 4) + 4;
+        let melodyLength = 1;
+        let isSimultaneous = false;
+
+        // Lógica de niveles
+        if (this.currentLevel === 1) {
+            melodyLength = 1;
+        } else if (this.currentLevel === 2) {
+            melodyLength = 2;
+        } else if (this.currentLevel === 3) {
+            melodyLength = Math.floor(Math.random() * 3) + 3; // 3, 4 o 5 notas
+        } else if (this.currentLevel === 4) {
+            melodyLength = Math.floor(Math.random() * 2) + 2; // 2 o 3 notas
+            isSimultaneous = true; // Nivel 4 es simultáneo (intervalos/triadas)
+        }
+
         this.currentMelody = [];
-        
         for (let i = 0; i < melodyLength; i++) {
             const randomNote = this.scaleNotes[Math.floor(Math.random() * this.scaleNotes.length)];
             this.currentMelody.push(randomNote);
         }
+
+        this.isSimultaneous = isSimultaneous;
+        this.updateUI(melodyLength);
         
-        document.getElementById('scaleType').textContent = '🎵 Escucha y adivina';
-        document.getElementById('noteCount').textContent = this.currentMelody.length;
-        document.getElementById('feedback').textContent = 'Presiona "Escuchar Melodía" para comenzar';
-        document.getElementById('scoreDisplay').style.display = 'none';
-        
-        this.userMelody = [];
-        this.clearKeyboardHighlights();
+        const modeText = this.isFamiliarizing ? '(Práctica)' : '(Evaluación)';
+        document.getElementById('feedback').textContent = `Presiona "Escuchar" para comenzar ${modeText}`;
+    }
+
+    updateUI(length = 0) {
+        document.getElementById('currentLevel').textContent = this.currentLevel;
+        document.getElementById('noteCount').textContent = length > 0 ? length : (this.isSimultaneous ? 'Simultáneas' : '0');
+        document.getElementById('levelProgress').textContent = `${this.successStreak}/2`;
     }
     
     async playMelody() {
         await this.initAudio();
         const feedback = document.getElementById('feedback');
-        feedback.textContent = ' Escuchando melodía...';
+        feedback.textContent = '🎵 Escuchando...';
         feedback.style.color = '#00d9a5';
         
         const now = Tone.now();
-        this.currentMelody.forEach((note, index) => {
-            this.synth.triggerAttackRelease(note, '8n', now + (index * 0.5));
-        });
         
-        setTimeout(() => {
-            feedback.textContent = '✅ Ahora repite la melodía en el teclado';
-            feedback.style.color = '#fff';
-        }, this.currentMelody.length * 500 + 500);
+        if (this.isSimultaneous) {
+            // Nivel 4: Tocar todas las notas al mismo tiempo
+            this.currentMelody.forEach((note) => {
+                this.synth.triggerAttackRelease(note, '2n', now);
+            });
+            setTimeout(() => {
+                feedback.textContent = '✅ Ahora toca las notas simultáneamente (acorde/intervalo)';
+                feedback.style.color = '#fff';
+            }, 1500);
+        } else {
+            // Niveles 1-3: Secuencia melódica
+            this.currentMelody.forEach((note, index) => {
+                this.synth.triggerAttackRelease(note, '8n', now + (index * 0.6)); // Un poco más lento para facilitar
+            });
+            setTimeout(() => {
+                feedback.textContent = '✅ Ahora repite la melodía en el teclado';
+                feedback.style.color = '#fff';
+            }, this.currentMelody.length * 600 + 500);
+        }
     }
     
     handleKeyPress(note, keyElement) {
@@ -137,23 +173,11 @@ class MusicTrainingApp {
     }
     
     convertNoteToSpanish(noteCode) {
-        const noteMap = {
-            'C': 'Do',
-            'D': 'Re',
-            'E': 'Mi',
-            'F': 'Fa',
-            'G': 'Sol',
-            'A': 'La',
-            'B': 'Si'
-        };
-        
+        const noteMap = { 'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si' };
         const noteLetter = noteCode.charAt(0);
         const accidental = noteCode.charAt(1) === '#' ? '#' : '';
         const octave = noteCode.slice(-1);
-        
-        const spanishName = noteMap[noteLetter] || noteLetter;
-        
-        return spanishName + accidental + octave;
+        return (noteMap[noteLetter] || noteLetter) + accidental + octave;
     }
     
     clearUserMelody() {
@@ -164,25 +188,20 @@ class MusicTrainingApp {
     }
     
     clearKeyboardHighlights() {
-        document.querySelectorAll('.key').forEach(key => {
-            key.classList.remove('correct', 'incorrect');
-        });
+        document.querySelectorAll('.key').forEach(key => key.classList.remove('correct', 'incorrect'));
     }
     
     checkMelody() {
-        // Validar que los datos estén llenos antes de verificar
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
         
         if (!email || !name || !group) {
-            alert('⚠️ Por favor, completa todos los campos de registro (correo, nombre y grupo) antes de verificar.');
-            document.getElementById('studentEmail').focus();
+            alert('⚠️ Completa los campos de registro antes de verificar.');
             return;
         }
-        
         if (this.userMelody.length === 0) {
-            document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas en el teclado';
+            document.getElementById('feedback').textContent = '⚠️ Primero toca algunas notas';
             return;
         }
         
@@ -190,37 +209,76 @@ class MusicTrainingApp {
         this.showResults(score);
         this.highlightKeys();
         
-        // ✅ GUARDADO AUTOMÁTICO al verificar
-        this.saveToGoogleSheets();
+        // Solo guardar y avanzar de nivel si NO estamos en modo familiarización
+        if (!this.isFamiliarizing) {
+            this.handleProgression(score);
+            this.saveToGoogleSheets(score);
+        } else {
+            document.getElementById('feedback').innerHTML += '<br><small>(Modo práctica: no se guardó el resultado)</small>';
+        }
+    }
+
+    handleProgression(score) {
+        if (score.percentage === 100) {
+            this.successStreak++;
+            if (this.successStreak >= 2 && this.currentLevel < 4) {
+                this.currentLevel++;
+                this.successStreak = 0;
+                alert(`🎉 ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
+            } else if (this.currentLevel === 4 && this.successStreak >= 2) {
+                alert('🌟 ¡Increíble! Has completado todos los niveles de entrenamiento auditivo.');
+            }
+        } else {
+            this.successStreak = 0; // Reiniciar racha si falla, para asegurar dominio
+        }
+        this.updateUI(this.currentMelody.length);
     }
     
     calculateScore() {
         let correctNotes = 0;
-        const minLength = Math.min(this.currentMelody.length, this.userMelody.length);
-        for (let i = 0; i < minLength; i++) {
-            if (this.currentMelody[i] === this.userMelody[i]) correctNotes++;
+        
+        if (this.isSimultaneous) {
+            // Para nivel 4, el orden no importa. Comparamos si tienen las mismas notas.
+            const sortedTarget = [...this.currentMelody].sort();
+            const sortedUser = [...this.userMelody].sort();
+            
+            if (sortedTarget.length === sortedUser.length) {
+                let allMatch = true;
+                for (let i = 0; i < sortedTarget.length; i++) {
+                    if (sortedTarget[i] !== sortedUser[i]) {
+                        allMatch = false;
+                        break;
+                    }
+                }
+                correctNotes = allMatch ? sortedTarget.length : 0;
+            }
+        } else {
+            // Para niveles 1-3, el orden sí importa
+            const minLength = Math.min(this.currentMelody.length, this.userMelody.length);
+            for (let i = 0; i < minLength; i++) {
+                if (this.currentMelody[i] === this.userMelody[i]) correctNotes++;
+            }
         }
+        
         const maxNotes = Math.max(this.currentMelody.length, this.userMelody.length);
-        const percentage = Math.round((correctNotes / maxNotes) * 100);
+        const percentage = maxNotes === 0 ? 0 : Math.round((correctNotes / maxNotes) * 100);
         return { percentage, correctNotes, totalNotes: this.currentMelody.length, userNotes: this.userMelody.length };
     }
     
     showResults(score) {
         const scoreDisplay = document.getElementById('scoreDisplay');
-        const scoreValue = document.getElementById('scoreValue');
-        const feedbackText = document.getElementById('feedbackText');
-        
         scoreDisplay.style.display = 'block';
-        scoreValue.textContent = score.percentage;
+        document.getElementById('scoreValue').textContent = score.percentage;
         
-        if (score.percentage === 100) feedbackText.textContent = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) feedbackText.textContent = '👏 ¡Muy bien! Casi perfecto';
-        else if (score.percentage >= 60) feedbackText.textContent = '👍 Bien, sigue practicando';
-        else if (score.percentage >= 40) feedbackText.textContent = '💪 Vas por buen camino, continúa';
-        else feedbackText.textContent = ' Sigue practicando, ¡tú puedes!';
+        let text = 'Sigue practicando, ¡tú puedes!';
+        if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
+        else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
+        
+        document.getElementById('feedbackText').textContent = text;
         
         const userNotesSpanish = this.userMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
-        const correctNotesSpanish = this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(' - ');
+        const correctNotesSpanish = this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? ' + ' : ' - ');
         
         document.getElementById('feedback').innerHTML = `
             Notas correctas: ${score.correctNotes}/${score.totalNotes}<br>
@@ -231,38 +289,54 @@ class MusicTrainingApp {
     
     highlightKeys() {
         this.clearKeyboardHighlights();
-        this.userMelody.forEach((note, index) => {
-            const keyElement = document.querySelector(`[data-note="${note}"]`);
-            if (keyElement) {
-                if (this.currentMelody[index] === note) keyElement.classList.add('correct');
-                else keyElement.classList.add('incorrect');
-            }
-        });
+        
+        if (this.isSimultaneous) {
+            // Resaltar todas las teclas correctas que el usuario tocó
+            this.userMelody.forEach(note => {
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                if (keyElement && this.currentMelody.includes(note)) {
+                    keyElement.classList.add('correct');
+                } else if (keyElement) {
+                    keyElement.classList.add('incorrect');
+                }
+            });
+            // Resaltar las que faltaron
+            this.currentMelody.forEach(note => {
+                if (!this.userMelody.includes(note)) {
+                    const keyElement = document.querySelector(`[data-note="${note}"]`);
+                    if (keyElement) keyElement.classList.add('incorrect'); // O un color diferente para "faltante"
+                }
+            });
+        } else {
+            this.userMelody.forEach((note, index) => {
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                if (keyElement) {
+                    if (this.currentMelody[index] === note) keyElement.classList.add('correct');
+                    else keyElement.classList.add('incorrect');
+                }
+            });
+        }
     }
     
-    async saveToGoogleSheets() {
+    async saveToGoogleSheets(score) {
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
         
-        if (!this.webhookURL) {
-            console.error('Webhook no configurado');
-            return;
-        }
-        
-        const score = this.calculateScore();
         const data = {
             timestamp: new Date().toISOString(),
             email: email || 'No especificado',
             name: name || 'No especificado',
             group: group || 'No especificado',
-            scaleType: this.scaleType,
+            nivel: this.currentLevel,
+            modo: 'Evaluación',
+            tipoEjercicio: this.isSimultaneous ? 'Simultáneo (Nivel 4)' : 'Melódico',
             melodyLength: this.currentMelody.length,
             score: score.percentage,
             correctNotes: score.correctNotes,
             totalNotes: score.totalNotes,
-            userMelody: this.userMelody.map(note => this.convertNoteToSpanish(note)).join('-'),
-            correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join('-')
+            userMelody: this.userMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-'),
+            correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-')
         };
         
         try {
@@ -272,7 +346,7 @@ class MusicTrainingApp {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            console.log('✅ Resultado guardado automáticamente');
+            console.log('✅ Resultado guardado');
         } catch (error) {
             console.error('Error al guardar:', error);
         }
