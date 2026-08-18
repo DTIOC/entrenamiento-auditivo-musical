@@ -7,7 +7,7 @@ class MusicTrainingApp {
         this.scaleType = 'Do Mayor';
         this.scaleNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
         
-        this.webhookURL = 'https://script.google.com/macros/s/AKfycbwHO7SAz_Y_W2VjrI3wbZo99j-qWXZF217nWZfeIdolddPE2l5D5ZqEDtaufz_2cx-O/exec';
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM4OhZerib7VpMMwuITvXi3_8qNSIbleVUisdiLTRvQP1Tt5vFt_XZkBvq2i3k/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
