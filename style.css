@@ -1,3 +1,106 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #e94560;
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+/* Student Info */
+.student-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.student-info h3 {
+    margin-bottom: 15px;
+    color: #e94560;
+}
+
+.student-info input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+}
+
+.game-area {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn-primary { background: #e94560; color: white; }
+.btn-primary:hover { background: #ff6b6b; }
+
+.btn-secondary { background: #0f3460; color: white; }
+.btn-secondary:hover { background: #1a4a7a; }
+
+.btn-success { background: #00d9a5; color: #1a1a2e; }
+.btn-success:hover { background: #00f5b8; }
+
+.btn-warning { background: #ffc107; color: #1a1a2e; }
+.btn-warning:hover { background: #ffdb4d; }
+
+.btn-info { background: #9b59b6; color: white; }
+.btn-info:hover { background: #8e44ad; }
+.btn-info.active-mode { background: #2ecc71; color: #1a1a2e; font-weight: bold; }
+
 .info-panel {
     display: flex;
     justify-content: space-around;
@@ -7,6 +110,7 @@
     border-radius: 10px;
     flex-wrap: wrap;
     gap: 10px;
+    text-align: center;
 }
 
 .level-badge {
@@ -17,19 +121,99 @@
     font-weight: bold;
 }
 
-.btn-info {
-    background: #9b59b6;
-    color: white;
+.feedback {
+    min-height: 60px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
-.btn-info:hover {
-    background: #8e44ad;
-}
-
-.btn-info.active-mode {
-    background: #2ecc71;
+.score-display {
+    background: linear-gradient(135deg, #00d9a5 0%, #00f5b8 100%);
     color: #1a1a2e;
-    font-weight: bold;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-/* (El resto de tu CSS del teclado se mantiene igual) */
+.score-display h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+/* ===== TECLADO DE PIANO ===== */
+.keyboard {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 250px;
+    margin: 30px auto;
+    user-select: none;
+    width: 364px; /* 7 teclas blancas × 52px aprox */
+}
+
+.key {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.key.white {
+    width: 50px;
+    height: 250px;
+    background: linear-gradient(to bottom, #fff 0%, #e8e8e8 100%);
+    border: 1px solid #ccc;
+    border-radius: 0 0 5px 5px;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+.key.white:active, .key.white.active {
+    background: linear-gradient(to bottom, #e8e8e8 0%, #d0d0d0 100%);
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.key.black {
+    width: 30px;
+    height: 150px;
+    background: linear-gradient(to bottom, #333 0%, #000 100%);
+    position: absolute;
+    z-index: 2;
+    border-radius: 0 0 3px 3px;
+    top: 0;
+}
+
+.key.black:active, .key.black.active {
+    background: linear-gradient(to bottom, #222 0%, #000 100%);
+    transform: translateY(2px);
+}
+
+/* POSICIONES FIJAS DE TECLAS NEGRAS */
+.key.black[data-note="C#4"] { left: 37px; }
+.key.black[data-note="D#4"] { left: 89px; }
+.key.black[data-note="F#4"] { left: 193px; }
+.key.black[data-note="G#4"] { left: 245px; }
+.key.black[data-note="A#4"] { left: 297px; }
+
+.key.correct {
+    background: #00ff88 !important;
+}
+
+.key.incorrect {
+    background: #ff4444 !important;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .keyboard {
+        transform: scale(0.8);
+        transform-origin: center;
+    }
+    header h1 { font-size: 1.8rem; }
+    .controls { grid-template-columns: 1fr; }
+}
