@@ -8,7 +8,7 @@ class MusicTrainingApp {
         this.scaleNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
         
         // URL CORRECTA con el número 0 (cero)
-        this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMwuITvXi3_8qNSIbleVUisdiLTRvQP1Tt5vFt_XZkBvq2i3k/exec';
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycbxN0wvVhEi2r0y7sLVkh6ntH_2J3U-gBBIH6t3eWTMUVEtcvBfSsf-1kNvT1SQdbPoD/exec';
         
         this.currentLevel = 1;
         this.successStreak = 0;
