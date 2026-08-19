@@ -7,7 +7,9 @@ class MusicTrainingApp {
         this.scaleType = 'Do Mayor';
         this.scaleNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
         
-this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMwuITvXi3_8qNSIbleVUisdiLTRvQP1Tt5vFt_XZkBvq2i3k/exec';        
+        // URL CORRECTA con el número 0 (cero)
+        this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMwuITvXi3_8qNSIbleVUisdiLTRvQP1Tt5vFt_XZkBvq2i3k/exec';
+        
         this.currentLevel = 1;
         this.successStreak = 0;
         this.isFamiliarizing = true;
@@ -76,13 +78,13 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
         this.isFamiliarizing = !this.isFamiliarizing;
         const btn = document.getElementById('btnMode');
         if (this.isFamiliarizing) {
-            btn.textContent = '🎵 Modo Familiarización';
+            btn.textContent = ' Modo Familiarización';
             btn.classList.add('active-mode');
             document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
         } else {
-            btn.textContent = ' Iniciar Evaluación';
+            btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = ' Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
         }
         this.clearUserMelody();
     }
@@ -187,6 +189,9 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
     }
     
     checkMelody() {
+        console.log(' checkMelody llamado');
+        console.log(' Modo familiarización:', this.isFamiliarizing);
+        
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
@@ -208,6 +213,7 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
         this.highlightKeys();
         
         if (!this.isFamiliarizing) {
+            console.log(' Llamando a saveToGoogleSheets...');
             this.handleProgression(score);
             this.saveToGoogleSheets(score);
         } else {
@@ -221,7 +227,7 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
             if (this.successStreak >= 2 && this.currentLevel < 4) {
                 this.currentLevel++;
                 this.successStreak = 0;
-                alert(`🎉 ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
+                alert(` ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
             } else if (this.currentLevel === 4 && this.successStreak >= 2) {
                 alert('🌟 ¡Increíble! Has completado todos los niveles de entrenamiento auditivo.');
             }
@@ -265,9 +271,9 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
         scoreDisplay.style.display = 'block';
         document.getElementById('scoreValue').textContent = score.percentage;
         
-        let text = '📚 Sigue practicando, ¡tú puedes!';
+        let text = ' Sigue practicando, ¡tú puedes!';
         if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 80) text = ' ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
         
         document.getElementById('feedbackText').textContent = text;
@@ -312,6 +318,9 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
     }
     
     async saveToGoogleSheets(score) {
+        console.log(' saveToGoogleSheets INICIADO');
+        console.log(' Webhook URL:', this.webhookURL);
+        
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
@@ -334,7 +343,10 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
             correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-')
         };
         
+        console.log(' Datos a enviar:', data);
+        
         try {
+            console.log(' Enviando fetch...');
             await fetch(this.webhookURL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -343,7 +355,7 @@ this.webhookURL = 'https://script.google.com/macros/s/AKfycby4ZiaM40hZerib7VpMMw
             });
             console.log('✅ Resultado guardado');
         } catch (error) {
-            console.error('Error al guardar:', error);
+            console.error('❌ Error al guardar:', error);
         }
     }
 }
