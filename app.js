@@ -27,10 +27,30 @@ class MusicTrainingApp {
     async initAudio() {
         if (!this.synth) {
             await Tone.start();
-            this.synth = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "triangle" },
-                envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1 }
+            
+            // Usamos Tone.Sampler para reproducir los archivos WAV reales del piano
+            this.synth = new Tone.Sampler({
+                urls: {
+                    "C4": "C4.wav",
+                    "C#4": "C#4.wav",
+                    "D4": "D4.wav",
+                    "D#4": "D#4.wav",
+                    "E4": "E4.wav",
+                    "F4": "F4.wav",
+                    "F#4": "F#4.wav",
+                    "G4": "G4.wav",
+                    "G#4": "G#4.wav",
+                    "A4": "A4.wav",
+                    "A#4": "A#4.wav",
+                    "B4": "B4.wav"
+                },
+                baseUrl: "./samples/piano/",
+                onload: () => {
+                    console.log("✅ Piano real cargado correctamente");
+                }
             }).toDestination();
+            
+            // Mantenemos el efecto de reverberación para que suene más natural
             const reverb = new Tone.Reverb({ decay: 2, wet: 0.3 }).toDestination();
             this.synth.connect(reverb);
         }
@@ -78,13 +98,13 @@ class MusicTrainingApp {
         this.isFamiliarizing = !this.isFamiliarizing;
         const btn = document.getElementById('btnMode');
         if (this.isFamiliarizing) {
-            btn.textContent = ' Modo Familiarización';
+            btn.textContent = '🎵 Modo Familiarización';
             btn.classList.add('active-mode');
             document.getElementById('feedback').textContent = '🎵 Modo Práctica: Toca libremente. No se guardan resultados.';
         } else {
             btn.textContent = '📝 Iniciar Evaluación';
             btn.classList.remove('active-mode');
-            document.getElementById('feedback').textContent = ' Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
+            document.getElementById('feedback').textContent = '📝 Modo Evaluación: Escucha y repite. ¡Se guardan tus resultados!';
         }
         this.clearUserMelody();
     }
@@ -189,8 +209,8 @@ class MusicTrainingApp {
     }
     
     checkMelody() {
-        console.log(' checkMelody llamado');
-        console.log(' Modo familiarización:', this.isFamiliarizing);
+        console.log('🔍 checkMelody llamado');
+        console.log('🔍 Modo familiarización:', this.isFamiliarizing);
         
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
@@ -213,7 +233,7 @@ class MusicTrainingApp {
         this.highlightKeys();
         
         if (!this.isFamiliarizing) {
-            console.log(' Llamando a saveToGoogleSheets...');
+            console.log('🔍 Llamando a saveToGoogleSheets...');
             this.handleProgression(score);
             this.saveToGoogleSheets(score);
         } else {
@@ -227,7 +247,7 @@ class MusicTrainingApp {
             if (this.successStreak >= 2 && this.currentLevel < 4) {
                 this.currentLevel++;
                 this.successStreak = 0;
-                alert(` ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
+                alert(`🎉 ¡Felicidades! Has dominado el Nivel ${this.currentLevel - 1} y subes al Nivel ${this.currentLevel}.`);
             } else if (this.currentLevel === 4 && this.successStreak >= 2) {
                 alert('🌟 ¡Increíble! Has completado todos los niveles de entrenamiento auditivo.');
             }
@@ -271,9 +291,9 @@ class MusicTrainingApp {
         scoreDisplay.style.display = 'block';
         document.getElementById('scoreValue').textContent = score.percentage;
         
-        let text = ' Sigue practicando, ¡tú puedes!';
+        let text = '💪 Sigue practicando, ¡tú puedes!';
         if (score.percentage === 100) text = '🌟 ¡Perfecto! ¡Excelente oído musical!';
-        else if (score.percentage >= 80) text = ' ¡Muy bien! Casi perfecto';
+        else if (score.percentage >= 80) text = '👏 ¡Muy bien! Casi perfecto';
         else if (score.percentage >= 60) text = '👍 Bien, sigue practicando';
         
         document.getElementById('feedbackText').textContent = text;
@@ -318,8 +338,8 @@ class MusicTrainingApp {
     }
     
     async saveToGoogleSheets(score) {
-        console.log(' saveToGoogleSheets INICIADO');
-        console.log(' Webhook URL:', this.webhookURL);
+        console.log('🔍 saveToGoogleSheets INICIADO');
+        console.log('🔍 Webhook URL:', this.webhookURL);
         
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
@@ -343,10 +363,10 @@ class MusicTrainingApp {
             correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-')
         };
         
-        console.log(' Datos a enviar:', data);
+        console.log('🔍 Datos a enviar:', data);
         
         try {
-            console.log(' Enviando fetch...');
+            console.log('🔍 Enviando fetch...');
             await fetch(this.webhookURL, {
                 method: 'POST',
                 mode: 'no-cors',
