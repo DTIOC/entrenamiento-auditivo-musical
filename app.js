@@ -1,13 +1,13 @@
 class MusicTrainingApp {
     constructor() {
         this.synth = null;
+        this.isAudioReady = false; // Nueva bandera para saber si el audio cargó
         this.keyboard = document.getElementById('keyboard');
         this.currentMelody = [];
         this.userMelody = [];
         this.scaleType = 'Do Mayor';
         this.scaleNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'];
         
-        // URL CORRECTA con el número 0 (cero)
         this.webhookURL = 'https://script.google.com/macros/s/AKfycbxN0wvVhEi2r0y7sLVkh6ntH_2J3U-gBBIH6t3eWTMUVEtcvBfSsf-1kNvT1SQdbPoD/exec';
         
         this.currentLevel = 1;
@@ -28,31 +28,39 @@ class MusicTrainingApp {
         if (!this.synth) {
             await Tone.start();
             
-            // Usamos Tone.Sampler para reproducir los archivos WAV reales del piano
-            this.synth = new Tone.Sampler({
-                urls: {
-                    "C4": "C4.wav",
-                    "C#4": "C#4.wav",
-                    "D4": "D4.wav",
-                    "D#4": "D#4.wav",
-                    "E4": "E4.wav",
-                    "F4": "F4.wav",
-                    "F#4": "F#4.wav",
-                    "G4": "G4.wav",
-                    "G#4": "G#4.wav",
-                    "A4": "A4.wav",
-                    "A#4": "A#4.wav",
-                    "B4": "B4.wav"
-                },
-                baseUrl: "./samples/piano/",
-                onload: () => {
-                    console.log("✅ Piano real cargado correctamente");
-                }
-            }).toDestination();
-            
-            // Mantenemos el efecto de reverberación para que suene más natural
-            const reverb = new Tone.Reverb({ decay: 2, wet: 0.3 }).toDestination();
-            this.synth.connect(reverb);
+            // Devolvemos una Promesa que solo se resuelve cuando onload se dispara
+            return new Promise((resolve) => {
+                this.synth = new Tone.Sampler({
+                    urls: {
+                        "C4": "C4.wav",
+                        "C#4": "C#4.wav",
+                        "D4": "D4.wav",
+                        "D#4": "D#4.wav",
+                        "E4": "E4.wav",
+                        "F4": "F4.wav",
+                        "F#4": "F#4.wav",
+                        "G4": "G4.wav",
+                        "G#4": "G#4.wav",
+                        "A4": "A4.wav",
+                        "A#4": "A#4.wav",
+                        "B4": "B4.wav"
+                    },
+                    baseUrl: "./samples/piano/",
+                    onload: () => {
+                        console.log("✅ Piano real cargado correctamente en memoria");
+                        this.isAudioReady = true;
+                        resolve(); // ¡Aquí le decimos al código que ya puede tocar!
+                    }
+                }).toDestination();
+                
+                const reverb = new Tone.Reverb({ decay: 2, wet: 0.3 }).toDestination();
+                this.synth.connect(reverb);
+            });
+        }
+        
+        // Si ya existe, pero por alguna razón aún no está listo, esperamos un poco
+        if (!this.isAudioReady) {
+            return new Promise(resolve => setTimeout(resolve, 100));
         }
     }
     
@@ -148,7 +156,13 @@ class MusicTrainingApp {
     }
     
     async playMelody() {
-        await this.initAudio();
+        await this.initAudio(); // Ahora espera correctamente a que cargue
+        
+        // Pequeña pausa de seguridad por si acaba de cargar
+        if (!this.isAudioReady) {
+            await new Promise(r => setTimeout(r, 300));
+        }
+
         const feedback = document.getElementById('feedback');
         feedback.textContent = '🎵 Escuchando...';
         feedback.style.color = '#00d9a5';
@@ -174,8 +188,15 @@ class MusicTrainingApp {
         }
     }
     
-    handleKeyPress(note, keyElement) {
-        this.initAudio();
+    async handleKeyPress(note, keyElement) { // <-- AÑADIDO 'async' AQUÍ
+        await this.initAudio(); // <-- AÑADIDO 'await' AQUÍ
+        
+        // Seguridad extra
+        if (!this.isAudioReady) {
+            console.log("Esperando a que el piano cargue...");
+            return;
+        }
+
         this.synth.triggerAttackRelease(note, '8n');
         keyElement.classList.add('active');
         setTimeout(() => keyElement.classList.remove('active'), 200);
@@ -209,9 +230,6 @@ class MusicTrainingApp {
     }
     
     checkMelody() {
-        console.log('🔍 checkMelody llamado');
-        console.log('🔍 Modo familiarización:', this.isFamiliarizing);
-        
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
@@ -233,7 +251,6 @@ class MusicTrainingApp {
         this.highlightKeys();
         
         if (!this.isFamiliarizing) {
-            console.log('🔍 Llamando a saveToGoogleSheets...');
             this.handleProgression(score);
             this.saveToGoogleSheets(score);
         } else {
@@ -338,9 +355,6 @@ class MusicTrainingApp {
     }
     
     async saveToGoogleSheets(score) {
-        console.log('🔍 saveToGoogleSheets INICIADO');
-        console.log('🔍 Webhook URL:', this.webhookURL);
-        
         const email = document.getElementById('studentEmail').value.trim();
         const name = document.getElementById('studentName').value.trim();
         const group = document.getElementById('studentGroup').value.trim();
@@ -363,17 +377,13 @@ class MusicTrainingApp {
             correctMelody: this.currentMelody.map(note => this.convertNoteToSpanish(note)).join(this.isSimultaneous ? '+' : '-')
         };
         
-        console.log('🔍 Datos a enviar:', data);
-        
         try {
-            console.log('🔍 Enviando fetch...');
             await fetch(this.webhookURL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            console.log('✅ Resultado guardado');
         } catch (error) {
             console.error('❌ Error al guardar:', error);
         }
